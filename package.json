@@ -9,14 +9,14 @@
   "bdsxPlugin": true,
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
-    "development": "tsc"
+    "watch": "tsc -w"
   },
   "devDependencies": {
     "@types/node": "^12.20.36",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
-    "eslint": "^8.31.0",
+    "eslint": "^8.31.0"
+  },"dependencies": {
     "bdsx": "file:../../bdsx/bdsx"
   }
 }
