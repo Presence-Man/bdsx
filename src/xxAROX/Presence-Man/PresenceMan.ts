@@ -31,6 +31,7 @@ export class PresenceMan {
 
     //#region plugin base
     public constructor() {
+        if (PresenceMan._static) return;
         PresenceMan._static = this;
         this.logger = new Logger("Presence-Man", s => s.blue);
         if (!existsSync(this.getDataFolder())) mkdirSync(this.getDataFolder(), {recursive: true});
