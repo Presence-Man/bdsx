@@ -1,3 +1,5 @@
+import * as https from "https";
+import * as http from "http";
 
 
 export function parseDuration(input: string): number {
@@ -57,3 +59,73 @@ export function parseDuration(input: string): number {
 	return totalMillis;
 }
 
+export namespace WebUtils {
+	interface Response {
+		code: number
+		body: string
+	}
+
+	function followRedirect(originalUrl: string, res: http.IncomingMessage, method: string, body: string | null, headers: {[k: string]: string}, resolve: (response: Response) => void, reject: (error: any) => void) {
+		const location = res.headers.location;
+		if (!location) {
+			reject(new Error("Redirect location not found"));
+			return;
+		}
+		const newUrl = new URL(location, originalUrl).toString();
+		if (method === 'GET') {
+			get(newUrl, headers).then(resolve).catch(reject);
+		} else if (method === 'POST') {
+			post(newUrl, JSON.parse(body ?? '{}'), headers).then(resolve).catch(reject);
+		}
+	}
+
+	export function get(url: string, headers: {[k: string]: string} = {}): Promise<Response> {
+		return new Promise<Response>(async (resolve, reject) => {
+			https
+				.request(url, (res) => {
+					let data = "";
+					res
+						.on("data", ch => data += ch)
+						.on("error", reject)
+						.on("close", () => {
+							if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
+								followRedirect(url, res, 'GET', null, headers, resolve, reject);
+							} else {
+								resolve({
+									body: data,
+									code: res.statusCode ?? 404
+								});
+							}
+						})
+					;
+				})
+				.end()
+			;
+		});
+	}
+	
+	export function post(url: string, body: {[k: string]: any} = {}, headers: {[k: string]: string} = {}): Promise<Response>{
+		return new Promise<Response>(async (resolve, reject) => {
+			https
+				.request(url, {method: "post"}, (res) => {
+					let data = "";
+					res
+						.on("data", ch => data += ch)
+						.on("error", reject)
+						.on("close", () => {
+							if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
+								followRedirect(url, res, 'POST', null, headers, resolve, reject);
+							} else {
+								resolve({
+									body: data,
+									code: res.statusCode ?? 404
+								});
+							}
+						})
+					;
+				})
+				.end()
+			;
+		});
+	}
+}

@@ -3,10 +3,13 @@ import * as JSON5 from "json5";
 import { events } from "bdsx/event";
 import { fsutil } from "bdsx/fsutil";
 import { bedrockServer } from "bdsx/launcher";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { cwd } from "process";
 import { Logger } from "../Logger";
+import Collection from "../Collection";
+import { Gateway } from "./entity/Gateway";
+import { APIActivity } from "./entity/APIActivity";
 
 export class PresenceMan {
     private static _static: PresenceMan;
@@ -16,6 +19,7 @@ export class PresenceMan {
     private config: PresenceManConfig;
     public readonly logger: Logger;
 
+    //#region plugin base
     public constructor() {
         PresenceMan._static = this;
         this.logger = new Logger("Presence-Man", s => s.blue);
@@ -49,17 +53,20 @@ export class PresenceMan {
     public getEventManager() {
         return events;
     }
+    //#endregion
+
+    public static presences: Collection<String, APIActivity> = new Collection();
+    public static default_activity: APIActivity;
 
     private async onLoad(): Promise<void>{
         this.logger.info("Loading..");
         await this.saveResouce("README.md", true);
         await this.saveResouce("config.jsonc");
-        console.log(this.getConfig());
+        await Gateway.fetchGatewayInformation();
     }
 
     public async onEnable(): Promise<void>{
-        this.logger.info("Enabled!")
-        
+        this.logger.info("Enabled!");
     }
 
     public onDisable(): void{
