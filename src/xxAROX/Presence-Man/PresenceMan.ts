@@ -31,7 +31,7 @@ export class PresenceMan {
     }
 
     public getPKG(): any{
-        return readFileSync(JSON.parse(join(__dirname, "../", "../", "../", "package.json")));
+        return JSON.parse(readFileSync(join(__dirname, "../", "../", "../", "package.json")).toString());
     }
 
     public getDataFolder(...args: string[]): string{
