@@ -1,4 +1,3 @@
-import * as JSON5 from "json5";
 import * as semver from "semver";
 import { WebUtils } from "../../utils";
 import { PresenceMan } from "../PresenceMan";
@@ -27,14 +26,13 @@ export class UpdateChecker {
     private static async performUpdate(): Promise<void>{
         try {
             const body = (await WebUtils.get(UpdateChecker.LATEST_VERSION_URL)).body.trim();
-            console.log("`" + body + "`");
-            const latest = JSON5.parse(body).version;
+            const latest = JSON.parse(body).version;
             const needUpdate = semver.gt(latest, PresenceMan.static.getPKG().version);
             if (needUpdate) {
                 PresenceMan.static.logger.info("Your version of Presence-Man is out of date. To avoid issues please update it to the latest version!");
                 PresenceMan.static.logger.info("Download: " + Gateway.getUrl() + "/downloads/bdsx");
                 UpdateChecker.stop()
-            } else PresenceMan.static.logger.debug("Presence-Man is up to date!")
+            }
         } catch (e) {
             
             PresenceMan.static.logger.error("Error while fetching latest version: ", e);
