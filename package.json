@@ -15,8 +15,10 @@
     "@types/node": "^12.20.36",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
+    "bdsx": "file:../../bdsx/bdsx",
     "eslint": "^8.31.0"
-  },"dependencies": {
-    "bdsx": "file:../../bdsx/bdsx"
+  },
+  "dependencies": {
+    "json5": "^2.2.3"
   }
 }

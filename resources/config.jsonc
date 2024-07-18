@@ -1,6 +1,6 @@
 // Presence-Man configuration
 {
-  "token": null,
+    "token": null,
     "client_id": "1133823892486623344",
     "server": "BDSX",
     "update_skin": true,

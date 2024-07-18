@@ -1,4 +1,4 @@
-# WaterdogPE plugin configuration
+# BDSX plugin configuration
 
 
 
@@ -7,10 +7,8 @@
 <details id="set-custom-presence">
 <summary>Set custom presence:</summary>
 
-```java
-import dev.waterdog.waterdogpe.player.ProxiedPlayer;
-import xxAROX.PresenceMan.WaterdogPE.entity.ApiActivity;
-import xxAROX.PresenceMan.WaterdogPE.PresenceMan;
+```ts
+import { PresenceMan } from "@presence-man/bdsx";
 
 final class Documentation {
     public void some_method_name(ProxiedPlayer player) {
