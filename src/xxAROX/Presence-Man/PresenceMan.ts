@@ -1,5 +1,6 @@
 import { ServerInstance, DedicatedServer } from "bdsx/bds/server";
 import * as JSON5 from "json5";
+import {decay} from "bdsx/decay";
 import { events } from "bdsx/event";
 import { fsutil } from "bdsx/fsutil";
 import { bedrockServer } from "bdsx/launcher";
@@ -11,6 +12,11 @@ import Collection from "../Collection";
 import { Gateway } from "./entity/Gateway";
 import { APIActivity } from "./entity/APIActivity";
 import { UpdateChecker } from "./tasks/UpdateChecker";
+import { APIRequest } from "./entity/APIRequest";
+import { Player } from "bdsx/bds/player";
+import { WebUtils } from "../utils";
+import { getServers } from "dns";
+import { SerializedSkin } from "bdsx/bds/skin";
 
 export class PresenceMan {
     private static _static: PresenceMan;
@@ -60,11 +66,10 @@ export class PresenceMan {
     }
     //#endregion
 
-    public static presences: Collection<String, APIActivity> = new Collection();
+    public static readonly presences: Collection<String, APIActivity> = new Collection();
     public static default_activity: APIActivity;
 
     private async onLoad(): Promise<void>{
-        this.logger.info("Loading..");
         await this.saveResouce("README.md", true);
         await this.saveResouce("config.jsonc");
         await Gateway.fetchGatewayInformation();
@@ -72,12 +77,89 @@ export class PresenceMan {
 
     public async onEnable(): Promise<void>{
         UpdateChecker.start();
-        this.logger.info("Enabled!");
     }
 
     public onDisable(): void{
         UpdateChecker.stop();
-        this.logger.info("Disabling..");
+    }
+
+    public getHeadURL(xuid: string, gray: boolean = false, size: number = 64): string{
+        size = !size ? Math.min(512, Math.max(16, size)) : 64;
+        let url = APIRequest.URI_GET_HEAD + xuid;
+        if (size !== undefined) url += `?size=${size}`;
+        if (gray) url += size !== undefined ? "&gray" : "?gray";
+        return Gateway.getUrl() + url;
+    }
+
+    public getSkinURL(xuid: string, gray: boolean = false){
+        return Gateway.getUrl() + APIRequest.URI_GET_SKIN + xuid + (gray ? "?gray" : "");
+    }
+
+    public async setActivity(player: Player, activity: null|APIActivity): Promise<void>{
+        if (bedrockServer.isClosed()) return;
+        if (decay.isDecayed(player)) {
+            this.logger.error("Player " + player.getName() + " is decayed!");
+            return;
+        }
+        const xuid = player.getXuid();
+        const ip = player.getNetworkIdentifier().getAddress();
+        const gamertag = player.getName();
+        if (await WebUtils.isFromSameHost(ip)) return;
+
+        const cfg = this.getConfig();
+        const request = new APIRequest(APIRequest.URI_UPDATE_PRESENCE, {}, true);
+        request.header("Token", cfg.token);
+
+        request.body("ip", ip);
+        request.body("xuid", xuid);
+        request.body("server", cfg.server);
+        activity!.client_id = cfg.client_id;
+        request.body("api_activity", activity?.serialize());
+
+        const response = await request.request();
+        if (response.code === 200) {
+            if (!activity) PresenceMan.presences.delete(xuid);
+            else PresenceMan.presences.set(player.getXuid(), activity);
+        } else PresenceMan.static.logger.warn(`Failed to update presence for ${gamertag}: ${JSON.parse(response.body).message}`);
+    }
+
+    /**
+     * @internal
+     */
+    public async offliine(player: Player): Promise<void>{
+        if (decay.isDecayed(player)) {
+            this.logger.error("Player " + player.getName() + " is decayed!");
+            return;
+        }
+        const xuid = player.getXuid();
+        const ip = player.getNetworkIdentifier().getAddress();
+        const gamertag = player.getName();
+        if (await WebUtils.isFromSameHost(ip)) return;
+
+        const cfg = this.getConfig();
+        const request = new APIRequest(APIRequest.URI_UPDATE_OFFLINE, {}, true);
+        request.header("Token", cfg.token);
+
+        request.body("ip", ip);
+        request.body("xuid", xuid);
+
+        await request.request();
+        PresenceMan.presences.delete(xuid);
+    }
+    /**
+     * @internal
+     */
+    public async saveSkin(player: Player, skin?: SerializedSkin) {
+        if (decay.isDecayed(player)) {
+            this.logger.error("Player " + player.getName() + " is decayed!");
+            return;
+        }
+        if (!skin) skin = player.getSkin();
+        const xuid = player.getXuid();
+        const ip = player.getNetworkIdentifier().getAddress();
+        const gamertag = player.getName();
+        // TODO:
+        //      1. Convert skin to png file
     }
 }
 interface PresenceManConfig {

@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "json5": "^2.2.3",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "sharp": "^0.33.4"
   }
 }

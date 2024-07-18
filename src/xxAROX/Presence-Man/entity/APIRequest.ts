@@ -1,4 +1,6 @@
+import { WebUtils } from "../../utils";
 import { PresenceMan } from "../PresenceMan";
+import { Gateway } from "./Gateway";
 
 export class APIRequest {
     public static readonly URI_UPDATE_PRESENCE = "/api/v1/servers/update_presence";
@@ -36,5 +38,25 @@ export class APIRequest {
 
     isPostMethod(): boolean{
         return this.postMethod;
+    }
+
+    public async request(): Promise<WebUtils.Response>{
+        try {
+            let response;
+            if (this.postMethod) response = await WebUtils.post(Gateway.getUrl() + this.uri, this._body, this.headers);
+            else response = await WebUtils.get(Gateway.getUrl() + this.uri, this.headers);
+
+            return response;
+        } catch (e) {
+            PresenceMan.static.logger.error("Error while API request: ", e);
+        }
+        return {
+            body: JSON.stringify({
+                success: false,
+                status: 404,
+                message: "Not found!"
+            }),
+            code: 404
+        }
     }
 }

@@ -54,8 +54,6 @@ export class APIActivity {
 			end: this.end,
 			large_icon_key: this.large_icon_key,
 			large_icon_text: this.large_icon_text,
-			small_icon_key: this.small_icon_key,
-			small_icon_text: this.small_icon_text,
 			party_max_player_count: this.party_max_player_count,
 			party_player_count: this.party_player_count,
 		};
