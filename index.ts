@@ -1,5 +1,5 @@
 import { ActivityType } from "./src/xxAROX/Presence-Man/entity/ActivityType";
-import { APIActivity } from "./src/xxAROX/Presence-Man/entity/APIActivity";
+import { APIActivity, DefaultActivities } from "./src/xxAROX/Presence-Man/entity/APIActivity";
 import { PresenceMan } from "./src/xxAROX/Presence-Man/PresenceMan";
 
 
@@ -10,6 +10,7 @@ const setActivity = PresenceMan.static.setActivity;
 export {
     APIActivity,
     ActivityType,
+    DefaultActivities,
 
     getSkinURL,
     getHeadURL,

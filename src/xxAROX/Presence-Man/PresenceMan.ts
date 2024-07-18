@@ -79,10 +79,13 @@ export class PresenceMan {
     }
 
     public async onEnable(): Promise<void>{
-        events.playerJoin.on(event => {
-            console.log("getAddress: ", event.player.getNetworkIdentifier().getAddress());
-            this.setActivity(event.player, DefaultActivities.activity());
-        })
+        
+        if (this.getConfig().default_presence.enabled) {
+            events.playerJoin.on(event => {
+                console.log("getAddress: ", event.player.getNetworkIdentifier().getAddress());
+                this.setActivity(event.player, DefaultActivities.activity());
+            })
+        }
         if (this.getConfig().update_skin) {
             events.packetBefore(MinecraftPacketIds.PlayerSkin).on((packet, networkIdentifier) => {
                 const player = networkIdentifier.getActor();
