@@ -10,6 +10,7 @@ import { Logger } from "../Logger";
 import Collection from "../Collection";
 import { Gateway } from "./entity/Gateway";
 import { APIActivity } from "./entity/APIActivity";
+import { UpdateChecker } from "./tasks/UpdateChecker";
 
 export class PresenceMan {
     private static _static: PresenceMan;
@@ -27,6 +28,10 @@ export class PresenceMan {
         this.onLoad();
         bedrockServer.afterOpen().then(() => this.onEnable());
         this.getEventManager().serverStop.on(() => this.onDisable());
+    }
+
+    public getPKG(): any{
+        return readFileSync(JSON.parse(join(__dirname, "../", "../", "../", "package.json")));
     }
 
     public getDataFolder(...args: string[]): string{
@@ -66,10 +71,12 @@ export class PresenceMan {
     }
 
     public async onEnable(): Promise<void>{
+        UpdateChecker.start();
         this.logger.info("Enabled!");
     }
 
     public onDisable(): void{
+        UpdateChecker.stop();
         this.logger.info("Disabling..");
     }
 }
