@@ -160,7 +160,7 @@ export namespace SkinUtils {
                 resolve(null);
                 return;
             }
-            const image = SkinUtils.fromSkinToImage(skin);
+            const image = fromSkinToImage(skin);
             if (!image) {
                 resolve(null);
                 return;
@@ -178,11 +178,11 @@ export namespace SkinUtils {
         });
     }
 
-    export function fromSkinToImage(skin: SerializedSkin): sharp.Sharp {
-        const skinData = skin.skinImage.b;
+    function fromSkinToImage(skin: SerializedSkin): sharp.Sharp {
+        const skinData = skin.skinImage.blob;
         let width: number, height: number;
 
-        switch (skinData.length) {
+        switch (skinData.size) {
             case 8192: {
                 width = 64;
                 height = 32;
@@ -207,7 +207,7 @@ export namespace SkinUtils {
                 throw new Error('Invalid skin data length');
             }
         }
-        const imageBuffer = Buffer.from(skinData);
+        const imageBuffer = Buffer.from(skinData.toArray());
         return sharp(imageBuffer, { raw: { width, height, channels: 4 } });
     }
 }

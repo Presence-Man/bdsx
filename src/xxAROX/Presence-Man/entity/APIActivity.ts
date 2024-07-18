@@ -4,6 +4,7 @@
  * I don't want anyone to use my source code without permission.
  */
 
+import { PresenceMan } from "../PresenceMan";
 import { ActivityType } from "./ActivityType";
 
 export class APIActivity {
@@ -14,23 +15,19 @@ export class APIActivity {
 	end: number | null;
 	large_icon_key: string | null;
 	large_icon_text: string | null;
-	small_icon_key: string | null;
-	small_icon_text: string | null;
 	party_max_player_count: number | null;
 	party_player_count: number | null;
 
 	constructor(
 		type: ActivityType,
-		state?: string,
-		details?: string,
-		end?: number,
-		large_icon_key?: string,
-		large_icon_text?: string,
-		small_icon_key?: string,
-		small_icon_text?: string,
-		party_max_player_count?: number,
-		party_player_count?: number,
-		client_id?: string
+		client_id: null|string,
+		state?: null|string,
+		details?: null|string,
+		end?: null|number,
+		large_icon_key?: null|string,
+		large_icon_text?: null|string,
+		party_max_player_count?: null|number,
+		party_player_count?: null|number,
 	) {
 		this.type = type;
 		this.state = state || null;
@@ -38,8 +35,6 @@ export class APIActivity {
 		this.end = end || null;
 		this.large_icon_key = large_icon_key || null;
 		this.large_icon_text = large_icon_text || null;
-		this.small_icon_key = small_icon_key || null;
-		this.small_icon_text = small_icon_text || null;
 		this.party_max_player_count = party_max_player_count || null;
 		this.party_player_count = party_player_count || null;
 		this.client_id = client_id || null;
@@ -60,7 +55,7 @@ export class APIActivity {
 	}
 
 	static deserialize(json: any): APIActivity {
-		const activity = new APIActivity(ActivityType.PLAYING);
+		const activity = new APIActivity(ActivityType.PLAYING, null, null, null, null, null, null, null, null, );
 		activity.client_id = json.client_id;
         // @ts-ignore
 		activity.type = json.type ? ActivityType[(json.type || "playing").toUpperCase()] : ActivityType.PLAYING;
@@ -72,5 +67,36 @@ export class APIActivity {
 		activity.party_max_player_count = json.party_max_player_count ? json.party_max_player_count : json.party_max_player_count || null;
 		activity.party_player_count = json.party_player_count ? json.party_player_count : json.party_player_count || null;
 		return activity;
+	}
+}
+export type DefaultActivity = DefaultActivities;
+export class DefaultActivities {
+	public static activity(): APIActivity{
+			const cfg = PresenceMan.static.getConfig().default_presence;
+		return new APIActivity(
+			ActivityType.PLAYING,
+			null,
+			cfg.state,
+			cfg.details,
+			null,
+			cfg.large_image_key,
+			cfg.large_image_text,
+			null,
+			null
+		)
+	}
+	/**
+	 * time = Date.now()
+	 */
+	public static ends_in(time: number, base: null|APIActivity = null): APIActivity{
+		if (!base) base = this.activity();
+		base.end = time;
+		return base;
+	}
+	public static players_left(current_players: number, max_players: number, base: null|APIActivity = null): APIActivity{
+		if (!base) base = this.activity();
+		base.party_player_count = current_players;
+		base.party_max_player_count = max_players;
+		return base;
 	}
 }

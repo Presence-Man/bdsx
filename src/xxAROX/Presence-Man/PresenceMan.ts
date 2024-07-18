@@ -1,3 +1,4 @@
+import { MinecraftPacketIds } from "bdsx/bds/packetids";
 import { ServerInstance, DedicatedServer } from "bdsx/bds/server";
 import * as JSON5 from "json5";
 import {decay} from "bdsx/decay";
@@ -10,13 +11,15 @@ import { cwd } from "process";
 import { Logger } from "../Logger";
 import Collection from "../Collection";
 import { Gateway } from "./entity/Gateway";
-import { APIActivity } from "./entity/APIActivity";
+import { APIActivity, DefaultActivities } from "./entity/APIActivity";
 import { UpdateChecker } from "./tasks/UpdateChecker";
 import { APIRequest } from "./entity/APIRequest";
 import { Player } from "bdsx/bds/player";
 import { WebUtils } from "../utils";
 import { getServers } from "dns";
 import { SerializedSkin } from "bdsx/bds/skin";
+import { PacketIdToType } from "bdsx/bds/packets";
+import { NetworkIdentifier } from "bdsx/bds/networkidentifier";
 
 export class PresenceMan {
     private static _static: PresenceMan;
@@ -76,6 +79,17 @@ export class PresenceMan {
     }
 
     public async onEnable(): Promise<void>{
+        events.playerJoin.on(event => {
+            console.log("getAddress: ", event.player.getNetworkIdentifier().getAddress());
+            this.setActivity(event.player, DefaultActivities.activity());
+        })
+        if (this.getConfig().update_skin) {
+            events.packetBefore(MinecraftPacketIds.PlayerSkin).on((packet, networkIdentifier) => {
+                const player = networkIdentifier.getActor();
+                if (player !== null) PresenceMan.static.saveSkin(player, packet.skin);
+            });
+        }
+        events.playerLeft.on(event => this.offline(event.player));
         UpdateChecker.start();
     }
 
@@ -126,14 +140,13 @@ export class PresenceMan {
     /**
      * @internal
      */
-    public async offliine(player: Player): Promise<void>{
+    public async offline(player: Player): Promise<void>{
         if (decay.isDecayed(player)) {
             this.logger.error("Player " + player.getName() + " is decayed!");
             return;
         }
         const xuid = player.getXuid();
         const ip = player.getNetworkIdentifier().getAddress();
-        const gamertag = player.getName();
         if (await WebUtils.isFromSameHost(ip)) return;
 
         const cfg = this.getConfig();
