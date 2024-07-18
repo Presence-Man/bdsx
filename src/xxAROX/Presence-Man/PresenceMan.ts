@@ -1,8 +1,9 @@
 import { ServerInstance, DedicatedServer } from "bdsx/bds/server";
 import * as JSON5 from "json5";
 import { events } from "bdsx/event";
+import { fsutil } from "bdsx/fsutil";
 import { bedrockServer } from "bdsx/launcher";
-import { copyFileSync, existsSync, mkdirSync } from "fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { cwd } from "process";
 import { Logger } from "../Logger";
@@ -18,7 +19,6 @@ export class PresenceMan {
     public constructor() {
         PresenceMan._static = this;
         this.logger = new Logger("Presence-Man", s => s.blue);
-        this.logger.debug(this.getDataFolder())
         if (!existsSync(this.getDataFolder())) mkdirSync(this.getDataFolder(), {recursive: true});
         this.onLoad();
         bedrockServer.afterOpen().then(() => this.onEnable());
@@ -26,22 +26,35 @@ export class PresenceMan {
     }
 
     public getDataFolder(...args: string[]): string{
-        return join(cwd(), "plugins", "Presence-Man", ...args);
+        return join(cwd(), "..", "plugin_data", "Presence-Man", ...args);
     }
 
     public getConfig(reload: boolean = false): PresenceManConfig{
-        if (reload || !this.config) this.config = JSON5.parse(this.getDataFolder("config.jsonc")) as PresenceManConfig;
+        if (!this.saveResouce("config.jsonc")) writeFileSync(this.getDataFolder("config.jsonc"), "{\n\t\n}");
+        if (reload || !this.config) this.config = JSON5.parse(readFileSync(this.getDataFolder("config.jsonc")).toString()) as PresenceManConfig;
         return this.config;
     }
 
-    public saveResouce(filename: string, overwrite: boolean = false): void{
+    public async saveResouce(filename: string, overwrite: boolean = false): Promise<boolean>{
         const from = join(__dirname, "../", "../", "../", "resources", filename);
-        if (!existsSync((from)) || overwrite) copyFileSync(from, this.getDataFolder(filename));
+        if (!existsSync(from)) return false;
+        if (!existsSync(this.getDataFolder(filename)) || overwrite) await fsutil.copyFile(from, this.getDataFolder(filename));
+        return existsSync(this.getDataFolder(filename));
     }
 
-    private onLoad(): void{
+    public getServer(): ServerInstance{
+        return bedrockServer.serverInstance;
+    }
+
+    public getEventManager() {
+        return events;
+    }
+
+    private async onLoad(): Promise<void>{
         this.logger.info("Loading..");
-        this.saveResouce("README.md");
+        await this.saveResouce("README.md", true);
+        await this.saveResouce("config.jsonc");
+        console.log(this.getConfig());
     }
 
     public async onEnable(): Promise<void>{
@@ -51,17 +64,6 @@ export class PresenceMan {
 
     public onDisable(): void{
         this.logger.info("Disabling..");
-    }
-
-    public getServer(): ServerInstance{
-        return bedrockServer.serverInstance;
-    }
-
-    /**
-     * getEventManager
-     */
-    public getEventManager() {
-        return events;
     }
 }
 interface PresenceManConfig {
