@@ -1,6 +1,6 @@
 {
-  "name": "@presence.man/bdsx",
-  "version": "0.1.0",
+  "name": "@bdsx/presence-man",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "keywords": [],
