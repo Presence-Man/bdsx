@@ -34,14 +34,14 @@ export class PresenceMan {
         return this.config;
     }
 
-    private onLoad(): void{
-        this.saveResouce("README.md");
-        this.logger.info("Loading..")
-    }
-
     public saveResouce(filename: string, overwrite: boolean = false): void{
         const from = join(__dirname, "../", "../", "../", "resources", filename);
         if (!existsSync((from)) || overwrite) copyFileSync(from, this.getDataFolder(filename));
+    }
+
+    private onLoad(): void{
+        this.logger.info("Loading..");
+        this.saveResouce("README.md");
     }
 
     public async onEnable(): Promise<void>{
