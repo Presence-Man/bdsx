@@ -15,7 +15,7 @@ export class APIRequest {
     private uri: string;
 
     constructor(uri: string, body: {[key: string]: string}, postMethod: boolean) {
-        this.headers['Content-Type'] = 'application/json';
+        this.header("Content-Type", "application/json");
         this.uri = uri;
         this._body = body;
         this.postMethod = postMethod;

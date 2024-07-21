@@ -109,26 +109,29 @@ export namespace WebUtils {
 	
 	export function post(url: string, body: {[k: string]: any} = {}, headers: {[k: string]: string} = {}): Promise<Response>{
 		return new Promise<Response>(async (resolve, reject) => {
-			https
-				.request(url, {method: "post"}, (res) => {
-					let data = "";
-					res
-						.on("data", ch => data += ch)
-						.on("error", reject)
-						.on("close", () => {
-							if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
-								followRedirect(url, res, 'POST', null, headers, resolve, reject);
-							} else {
-								resolve({
-									body: data,
-									code: res.statusCode ?? 404
-								});
-							}
-						})
-					;
-				})
-				.end()
-			;
+			const bodyData = JSON.stringify(body);
+			headers["Content-Type"] = "application/json";
+			// @ts-ignore
+			headers["Content-Length"] = Buffer.byteLength(bodyData);
+			const req = https.request(url, {method:"post", headers:headers,}, (res) => {
+				let data = "";
+				res
+					.on("data", ch => data += ch)
+					.on("error", reject)
+					.on("close", () => {
+						if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
+							followRedirect(url, res, 'POST', null, headers, resolve, reject);
+						} else {
+							resolve({
+								body: data,
+								code: res.statusCode ?? 404
+							});
+						}
+					})
+				;
+			});
+			req.write(bodyData);
+			req.end();
 		});
 	}
 
