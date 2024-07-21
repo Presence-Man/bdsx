@@ -2,7 +2,7 @@ import { lookup } from 'dns';
 import * as https from "https";
 import * as http from "http";
 import { SerializedSkin } from 'bdsx/bds/skin';
-import sharp = require('sharp');
+import { ImageScript } from './ImageScript';
 
 
 export function parseDuration(input: string): number {
@@ -155,7 +155,7 @@ export namespace WebUtils {
 
 export namespace SkinUtils {
 	export function convertSkinToBase64File(skin: SerializedSkin): Promise<string | null> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 			if (skin.isPersona) {
                 resolve(null);
                 return;
@@ -165,20 +165,12 @@ export namespace SkinUtils {
                 resolve(null);
                 return;
             }
-
-            image.toBuffer((err, buffer) => {
-                if (err) {
-                    console.error('Error converting image to buffer:', err);
-                    resolve(null);
-                    return;
-                }
-                const base64String = buffer.toString('base64');
-                resolve(base64String);
-            });
+			const encoded = await image.encode();
+			resolve(Buffer.from(encoded).toString('base64'));
         });
     }
 
-    function fromSkinToImage(skin: SerializedSkin): sharp.Sharp {
+    function fromSkinToImage(skin: SerializedSkin): ImageScript.Image {
         const skinData = skin.skinImage.blob;
         let width: number, height: number;
 
@@ -207,7 +199,8 @@ export namespace SkinUtils {
                 throw new Error('Invalid skin data length');
             }
         }
-        const imageBuffer = Buffer.from(skinData.toArray());
-        return sharp(imageBuffer, { raw: { width, height, channels: 4 } });
+		const image = new ImageScript.Image(width, height);
+		image.bitmap.set(skinData.toArray());
+		return image;
     }
 }
