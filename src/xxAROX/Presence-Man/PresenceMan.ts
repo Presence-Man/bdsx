@@ -83,7 +83,6 @@ export class PresenceMan {
         
         if (this.getConfig().default_presence.enabled) {
             events.playerJoin.on(event => {
-                console.log("getAddress: ", event.player.getNetworkIdentifier().getAddress());
                 this.setActivity(event.player, DefaultActivities.activity());
             })
         }
@@ -120,7 +119,7 @@ export class PresenceMan {
             return;
         }
         const xuid = player.getXuid();
-        const ip = player.getNetworkIdentifier().getAddress();
+        const ip = player.getNetworkIdentifier().getAddress().split("|")[0];
         const gamertag = player.getName();
         if (await WebUtils.isFromSameHost(ip)) return;
 
@@ -150,7 +149,7 @@ export class PresenceMan {
             return;
         }
         const xuid = player.getXuid();
-        const ip = player.getNetworkIdentifier().getAddress();
+        const ip = player.getNetworkIdentifier().getAddress().split("|")[0];
         if (await WebUtils.isFromSameHost(ip)) return;
 
         const cfg = this.getConfig();
@@ -173,7 +172,7 @@ export class PresenceMan {
         }
         if (!skin) skin = player.getSkin();
         const xuid = player.getXuid();
-        const ip = player.getNetworkIdentifier().getAddress();
+        const ip = player.getNetworkIdentifier().getAddress().split("|")[0]
         const gamertag = player.getName();
         // TODO:
         //      1. Convert skin to png file
