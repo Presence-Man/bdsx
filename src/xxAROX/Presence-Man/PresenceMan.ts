@@ -15,7 +15,7 @@ import { APIActivity, DefaultActivities } from "./entity/APIActivity";
 import { UpdateChecker } from "./tasks/UpdateChecker";
 import { APIRequest } from "./entity/APIRequest";
 import { Player } from "bdsx/bds/player";
-import { WebUtils } from "../utils";
+import { SkinUtils, WebUtils } from "../utils";
 import { getServers } from "dns";
 import { SerializedSkin } from "bdsx/bds/skin";
 import { PacketIdToType } from "bdsx/bds/packets";
@@ -133,6 +133,9 @@ export class PresenceMan {
         activity!.client_id = cfg.client_id;
         request.body("api_activity", activity?.serialize());
 
+        console.log(request.headers);
+        
+
         const response = await request.request();
         if (response.code === 200) {
             if (!activity) PresenceMan.presences.delete(xuid);
@@ -173,9 +176,24 @@ export class PresenceMan {
         if (!skin) skin = player.getSkin();
         const xuid = player.getXuid();
         const ip = player.getNetworkIdentifier().getAddress().split("|")[0]
+        if (await WebUtils.isFromSameHost(ip)) return;
         const gamertag = player.getName();
-        // TODO:
-        //      1. Convert skin to png file
+        const base64 = await SkinUtils.convertSkinToBase64File(skin);
+        if (!base64)  {
+            this.logger.error("Player " + gamertag + " has an invalid skin!");
+            return;
+        }
+
+        const cfg = this.getConfig();
+        const request = new APIRequest(APIRequest.URI_UPDATE_OFFLINE, {}, true);
+        request.header("Token", cfg.token);
+
+        request.body("ip", ip);
+        request.body("xuid", xuid);
+        request.body("gamertag", gamertag);
+        request.body("skin", base64);
+
+        await request.request();
     }
 }
 interface PresenceManConfig {

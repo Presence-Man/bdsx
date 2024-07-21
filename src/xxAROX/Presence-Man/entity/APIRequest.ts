@@ -9,7 +9,7 @@ export class APIRequest {
     public static readonly URI_GET_SKIN = "/api/v1/images/skins/";
     public static readonly URI_GET_HEAD = "/api/v1/images/heads/";
 
-    private headers: {[key: string]: string} = {};
+    private _headers: {[key: string]: string} = {};
     private _body: {[key: string]: string} = {};
     private postMethod: boolean;
     private uri: string;
@@ -19,7 +19,8 @@ export class APIRequest {
         this.uri = uri;
         this._body = body;
         this.postMethod = postMethod;
-        this.header('Serversoftware', "BDSX");
+        this.header("Serversoftware", "BDSX");
+        this.header("User-Agent", "Presence-Man BDSX client/"+PresenceMan.static.getPKG().version)
     }
 
     getUri(): string{
@@ -27,8 +28,12 @@ export class APIRequest {
     }
 
     header(key: string, value: string): APIRequest{
-        this.headers[key] = value;
+        this._headers[key] = value;
         return this;
+    }
+
+    get headers(): {[key: string]: string}{
+        return this._headers;
     }
 
     body(key: string, value: string): APIRequest{
