@@ -13,3 +13,28 @@
 
 > [!TIP]
 > For more information about presence-man configuration, check out on our [discord](https://presence-man.com/discord) > [#as-a-server-owner](https://discord.com/channels/1128740911183036448/1257708145405595770)
+
+<details>
+<summary>API for developers:</summary>
+
+```ts
+import * as PresenceMan from "@bdsx/presence-man-bdsx";
+import {
+    APIActivity, ActivityType, DefaultActivities,
+    getSkinURL, getHeadURL, setActivity
+}, * as PresenceMan from "./index";
+
+// NOTE: Update activity
+const activity_default = PresenceMan.DefaultActivities.activity();
+const activity_ends_in_15mins = PresenceMan.DefaultActivities.ends_in(Date.now() +(1000 *60 *15), activity_default);
+const activity_players_left = PresenceMan.DefaultActivities.players_left(9, 16, activity_ends_in_15mins);
+PresenceMan.setActivity(player, activity_players_left);
+
+// NOTE: Get skin/head url
+const gray = false;
+const size = 128; // 128x128
+PresenceMan.getSkinURL(player, gray);
+PresenceMan.getHeadURL(player, !gray, scale);
+```
+
+</details>
