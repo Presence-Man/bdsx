@@ -1,3 +1,3 @@
 # BDSX
-> [!Warning]
+> [!IMPORTANT]
 > This plugin is not finished yet.
