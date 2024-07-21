@@ -1,6 +1,6 @@
 # BDSX
 > [!IMPORTANT]
-> This plugin is not finished yet.
+> This plugin is not full tested yet.
 
 ## How to install?
 1.  Go into the `./bdsx-root/plugins` folder and open a new terminal
