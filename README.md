@@ -39,7 +39,7 @@ PresenceMan.getSkinURL(player, gray);
 PresenceMan.getHeadURL(player, !gray, scale);
 ```
 
-### Also add presence-man dependency:
+#### Also add presence-man dependency,when using it in another plugin/s:
 ```json
 "dependencies": {
     "@bdsx/presence-man-bdsx": "^0.1.0"
