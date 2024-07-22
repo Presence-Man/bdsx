@@ -9,7 +9,7 @@
 4.  Let the server boot, then type /stop *(Now the important files are created in bdsx-root/plugin_data)*
 5.  Go into `./bdsx-root/plugin_data/Presence-Man` and configure config.jsonc (.jsonc --> json with comments)
 6.  Start server again `./bdsx-root/bdsx.<bat | sh>`
-7.  If you done everything correctly, users that are using our [application](https://github.com/presence-man/application/releases) should have a activity with your server now
+7.  If you done everything correctly, users that are using our [application](https://github.com/presence-man/application/releases) should have an activity with your server now!
 
 > [!TIP]
 > For more information about presence-man configuration, check out on our [discord](https://presence-man.com/discord) > [#as-a-server-owner](https://discord.com/channels/1128740911183036448/1257708145405595770)
