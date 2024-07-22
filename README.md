@@ -12,7 +12,7 @@
 7.  If you done everything correctly, users that are using our [application](https://github.com/presence-man/application/releases) should have an activity with your server now!
 
 > [!TIP]
-> For more information about presence-man configuration, check out on our [discord](https://presence-man.com/discord) > [#as-a-server-owner](https://discord.com/channels/1128740911183036448/1257708145405595770)
+> For more information about presence-man configuration, check out on our [discord](https://presence-man.com/discord) > [#getting-started-as-a-server-owner](https://discord.com/channels/1128740911183036448/1257708145405595770)
 
 <details>
 <summary>API for developers:</summary>
