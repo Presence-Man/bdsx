@@ -41,7 +41,9 @@ PresenceMan.getHeadURL(player, !gray, scale);
 
 ### Also add presence-man dependency:
 ```json
+"dependencies": {
     "@bdsx/presence-man-bdsx": "^0.1.0"
+}
 ```
 > *But you have to install it via git clone*
 
